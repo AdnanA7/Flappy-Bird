@@ -1,0 +1,216 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, StdCtrls, jpeg, MMSystem, ComCtrls;
+
+type
+  TForm1 = class(TForm)
+    Panel1: TPanel;
+    bird1: TImage;
+    Vogel_Schwerkraft: TTimer;
+    bird2: TImage;
+    bird3: TImage;
+    Vogel_Fluegel: TTimer;
+    B1: TImage;
+    B2: TImage;
+    B3: TImage;
+    B4: TImage;
+    B5: TImage;
+    B6: TImage;
+    B7: TImage;
+    B8: TImage;
+    B9: TImage;
+    B10: TImage;
+    B11: TImage;
+    B12: TImage;
+    B13: TImage;
+    B14: TImage;
+    B15: TImage;
+    B16: TImage;
+    B17: TImage;
+    B18: TImage;
+    B19: TImage;
+    B20: TImage;
+    B21: TImage;
+    B22: TImage;
+    B23: TImage;
+    B25: TImage;
+    Boden_Bewgung: TTimer;
+    I_Pip_u: TImage;
+    I_Pip_o: TImage;
+    I_Logo: TImage;
+    B24: TImage;
+    T_Pipe: TTimer;
+    I_Pip_o1: TImage;
+    I_Pip_u1: TImage;
+    Shape1: TShape;
+    Shape2: TShape;
+    I_Tafel: TImage;
+    Restart: TImage;
+    L_Score: TLabel;
+    L_Best: TLabel;
+    L_Punkte: TLabel;
+    procedure Vogel_SchwerkraftTimer(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    //procedure Button1Click(Sender: TObject);
+    procedure Vogel_FluegelTimer(Sender: TObject);
+    procedure Boden_BewgungTimer(Sender: TObject);
+    procedure T_PipeTimer(Sender: TObject);
+    procedure RestartClick(Sender: TObject);
+  private
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+
+var
+  Form1: TForm1;
+  Boden: Array[1..25] of TImage;
+  Pipe: Array[1..4] of TImage;
+  zeit : integer;
+  a,h,p,x : integer;
+  Kollision:boolean;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.Vogel_SchwerkraftTimer(Sender: TObject);
+begin
+// Schwerkraft für den Vogel
+bird1.Top := bird1.Top + a*zeit;
+bird2.Top := bird1.Top + a*zeit;
+bird3.Top := bird1.Top + a*zeit;
+zeit:=zeit+1;
+end;
+
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+Boden[1] := B1;Boden[2] := B2;Boden[3] := B3;Boden[4] := B4;Boden[5] := B5;Boden[6] := B6;Boden[7] := B7;Boden[8] := B8;Boden[9] := B9;Boden[10] := B10;Boden[11] := B11;Boden[12] := B12;Boden[13] := B13;Boden[14] := B14;Boden[15] := B15;Boden[16] := B16;Boden[17] := B17;Boden[18] := B18;Boden[19] := B19;Boden[20] := B20;Boden[21] := B21;Boden[22] := B22;Boden[23] := B23;Boden[24] := B24;Boden[25] := B25;
+Pipe[1]:=I_Pip_o; Pipe[2]:=I_Pip_u; Pipe[3]:=I_Pip_o1; Pipe[4]:=I_Pip_u1;
+Zeit := 0;
+a:=2;
+Kollision := False;
+p:=0;
+h:=0;
+Form1.SetFocus;
+randomize;
+end;
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  T_Pipe.Enabled := True;
+  Vogel_Schwerkraft.Enabled := True;
+  //PlaySound(',0, SND_ASYNC or SND_FILENAME);
+  zeit := -6;
+end;
+
+
+procedure TForm1.Vogel_FluegelTimer(Sender: TObject);
+begin
+x:=x+1;
+case x of
+1: begin bird3.Visible := False; bird1.Visible := True; end;
+2: begin bird1.Visible := False; bird2.Visible := True; end;
+3: begin bird2.Visible := False; bird3.Visible := True; end;
+end;
+if x = 3 then x := 0;
+end;
+
+procedure TForm1.Boden_BewgungTimer(Sender: TObject);
+var i:integer;
+begin
+// Bewegung Boden
+for i := 1 to 25  do begin
+  Boden[i].left := Boden[i].left - 3;
+  if Boden[i].Left + Boden[i].width < 0 then Boden[i].Left := Panel1.Width;
+end;
+end;
+
+
+procedure TForm1.T_PipeTimer(Sender: TObject);
+var i: integer;
+    over : TRect;
+begin
+
+// Bewegung der Pipes
+for i:= 1 to 4 do begin Pipe[i].Left := Pipe[i].Left - 3; end;
+for i := 1 to 2 do begin
+if Pipe[2*i-1].Left + Pipe[2*i-1].width < 0 then
+begin
+  Pipe[2*i-1].Top := -(random(480)+160);
+  Pipe[2*i].Height := (-Pipe[2*i-1].Top) - 150;
+  Pipe[2*i].Top := 808+89-Pipe[2*i].Height;
+  Pipe[2*i-1].Left := Panel1.Width;
+  Pipe[2*i].Left := Panel1.Width;
+end; // end for to 2
+end;
+// end Bewegung
+
+// Pipes Kollision
+for i := 1 to 4 do begin
+  if  IntersectRect(over, bird1.BoundsRect, Pipe[i].BoundsRect)then begin Kollision := True; end;
+end;
+// Boden Kollision
+if bird1.Top > 850 then begin Kollision := True; end;
+// Punkte Aufzählen
+for i := 1 to 2 do begin
+  if bird1.Left = Pipe[i*2].Left+Pipe[i*2].Width then begin
+    p:= p+1;
+    l_Punkte.Caption := IntToStr(p);
+    if p > h then h := p;
+  end;
+end;
+// Kollision Antwort
+if Kollision = true then begin
+  bird1.Top := 840;
+  bird2.Top := 840;
+  bird3.Top := 840;
+  Vogel_Schwerkraft.Enabled:=false;
+  T_Pipe.Enabled := False;
+  Boden_Bewgung.Enabled := False;
+  for i := 1 to 4 do begin Pipe[i].Visible := False; end;
+  I_Logo.Visible := True;
+  I_Tafel.Visible := True;
+  L_Score.Visible := True;
+  L_Best.Visible := True;
+  Restart.Visible := True;
+  L_Punkte.Visible := False;
+  Vogel_Fluegel.Enabled := False;
+  l_Score.Caption := IntToStr(p);
+  l_Best.Caption := IntToStr(h);
+end; // end Antwort
+
+end;
+
+procedure TForm1.RestartClick(Sender: TObject);
+var i:integer;
+begin
+Kollision := False;
+Boden_Bewgung.Enabled:=True;
+bird1.Top := 432;
+bird2.Top := 432;
+bird3.Top := 432;
+for i := 1 to 4 do Pipe[i].Visible := True;
+Pipe[1].Left := 1536;
+Pipe[2].Left := 1536;
+Pipe[3].Left := 1920;
+Pipe[4].Left := 1920;
+I_Logo.Visible := False;
+I_Tafel.Visible := False;
+L_Score.Visible := False;
+L_Best.Visible := False;
+Restart.Visible := False;
+L_Punkte.Visible := True;
+Vogel_Fluegel.Enabled := True;
+p := 0;
+l_Punkte.Caption := IntToStr(p);
+end;
+
+end.
